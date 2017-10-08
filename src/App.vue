@@ -1,30 +1,28 @@
 <template>
   <div id="app">
-    <!--
-    <img class="logo" src="./assets/logo.png">
-    <hello></hello>
-    <calendar></calendar>
-    -->
-    <spotify></spotify>
+    <img src="./assets/logo.png">
+    <hello-world/>
   </div>
 </template>
 
 <script>
-import Hello from './components/Hello'
-import Calendar from './components/Calendar'
-import Spotify from './components/Spotify'
+import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
+  name: 'app',
   components: {
-    Hello,
-    Calendar,
-    Spotify
+    HelloWorld
   }
 }
 </script>
 
 <style>
-body {
-  font-family: Helvetica, sans-serif;
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
 </style>

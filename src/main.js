@@ -1,19 +1,13 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import VueResource from 'vue-resource'
-import VueMoment from 'vue-moment'
-
 import App from './App'
-import auth from './lib/auth'
 
-Vue.use(VueResource)
-Vue.use(VueMoment)
+Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-if (auth.loggedIn()) {
-  new Vue({
-    el: 'body',
-    components: { App }
-  })
-} else {
-  auth.authenticate()
-}
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  components: { App }
+})
