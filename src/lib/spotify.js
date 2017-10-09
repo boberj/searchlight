@@ -10,9 +10,9 @@ function options () {
 }
 
 function getP (playlists, offset) {
-  return client.getUserPlaylists(userId, {limit: 1, offset: offset, fields: 'items(id,name,owner.id),limit,next,offset'})
+  return client.getUserPlaylists(userId, {limit: 50, offset: offset, fields: 'items(id,name,owner.id),limit,next,offset'})
     .then(function (response) {
-      if (response.next == null || offset > -1) {
+      if (response.next === null) {
         return playlists.concat(response.items)
       } else {
         return getP(playlists.concat(response.items), response.offset + response.limit)
@@ -22,7 +22,7 @@ function getP (playlists, offset) {
 
 function getT (ownerId, playlistId, tracks, offset) {
   return client.getPlaylistTracks(ownerId, playlistId, {limit: 100, offset: offset, fields: 'items(added_at,track(album.name,artists.name,duration_ms,name)),limit,next,offset'}).then(response => {
-    if (response.next == null) {
+    if (response.next === null) {
       return tracks.concat(response.items)
     } else {
       return getT(ownerId, playlistId, tracks.concat(response.items), response.offset + response.limit)
@@ -53,7 +53,7 @@ export default {
     client = new SpotifyWebApi()
     client.setAccessToken(token)
     client.getMe()
-      .then(response => userId = response.id)
+      .then(response => { userId = response.id })
       .then(console.debug('Spotify client initialized'))
   },
   me (context) {

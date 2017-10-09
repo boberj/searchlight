@@ -1,22 +1,9 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+    <h1>Welcome to Searchlight for Spotify</h1>
+    <h2>Find your lost songs</h2>
+    <p>Searchlight for Spotify shows you not only what songs you've saved but also <i>where</i> you saved them.</p>
+    <p>Authenticate with Spotify to <a href="https://accounts.spotify.com/authorize?client_id=8ff22b4d074b418b9a20d935f59e0373&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F&scope=playlist-read-private%20playlist-read-collaborative%20user-library-read&response_type=token">begin</a>.</p>
   </div>
 </template>
 

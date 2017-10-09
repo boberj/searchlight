@@ -2,27 +2,38 @@
   <div id="app">
     <img src="./assets/logo.png">
     <hello-world/>
+    <spotify/>
   </div>
 </template>
 
 <script>
 import HelloWorld from '@/components/HelloWorld.vue'
+import Spotify from '@/components/Spotify.vue'
 
 export default {
   name: 'app',
   components: {
+    Spotify,
     HelloWorld
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+<style lang="scss">
+
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+
+body {
+  background-color: #121314;
+  color: #fff;
+  font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+}
+
+#app {
   margin-top: 60px;
 }
 </style>

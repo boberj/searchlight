@@ -15,7 +15,8 @@
   "dependencies": {
     "lockr": "^0.8.4",
     "spotify-web-api-js": "^0.18.1",
-    "vue": "^2.4.2"
+    "vue": "^2.4.2",
+    "vue-moment": "^2.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

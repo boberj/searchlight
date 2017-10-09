@@ -38,24 +38,16 @@
             <td>{{ item.track.artists | mkArtistString }}</td>
             <td>{{ item.track.album.name }}</td>
             <td>{{ item.playlist.name }}</td>
-            <td title="{{ item.added_at | moment 'calendar' }}">{{ item.added_at | moment "from" "now" }}</td>
+            <td :title="item.added_at | moment('calendar')">{{ item.added_at | moment('from', 'now') }}</td>
           </tr>
           <tr v-if="search.results > search.displayMax"><td colspan="5">And {{ search.results - search.displayMax }} more results</td></tr>
         </tbody>
       </table>
+    </div>
   </div>
 </template>
 
-<style lang="sass">
-
-@import url(https://fonts.googleapis.com/css?family=Montserrat);
-
-body {
-  background-color: #121314;
-  color: #88898c;
-  font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-}
+<style lang="scss" scoped>
 
 #spotify {
 
@@ -69,15 +61,19 @@ body {
   }
 
   th {
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .08em;
     text-align: left;
     text-transform: uppercase;
   }
 
   td {
-    color: #dfe0e6;
+    font-size: 1.2em;
     height: 40px;
     line-height: 19px;
     border-top: 1px solid #222326;
+    text-align: left;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -108,6 +104,7 @@ function log (response) {
 }
 
 export default {
+  name: 'Spotify',
   methods: {
     test: function () {
       auth.test()
@@ -135,21 +132,26 @@ export default {
 
         return playlists.reduce(function (sequence, playlist) {
           return sequence
-            .then(_ => progress.playlist.current += 1)
+            .then(_ => { progress.playlist.current += 1 })
             .then(_ => spotify.tracks(playlist.owner.id, playlist.id))
             .then(tracks => {
               var duration = 0
+              let addedTracks = 0
               tracks.forEach(track => {
+                if (track.track === null) {
+                  return
+                }
+
                 duration += Math.floor(track.track.duration_ms / 1000)
                 track['playlist'] = playlist
+                p.push(track)
+                addedTracks++
               })
-              p = p.concat(tracks)
-              self.tracks.total += tracks.length
+              self.tracks.total += addedTracks
               self.tracks.duration += duration
             })
         }, Promise.resolve())
       }).then(_ => {
-        // Vue.$log(self)
         progress.loading = false
         progress.indexing = true
         // To avoid UI hanging on indexing

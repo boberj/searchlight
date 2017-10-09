@@ -22,7 +22,7 @@ function authenticateUrl () {
     query: {
       client_id: '8ff22b4d074b418b9a20d935f59e0373',
       response_type: 'token',
-      redirect_uri: SPOTIFY_REDIRECT_URL,
+      redirect_uri: process.env.SPOTIFY_REDIRECT_URL,
       // TODO state:
       scope: 'playlist-read-private playlist-read-collaborative user-library-read'
     }
@@ -34,15 +34,15 @@ function hasHash (hash) {
 }
 
 function getSession () {
-  var session
+  let session
 
   if (hasHash(window.location.hash)) {
-    session = parseHash(window.location.hash)['access_token']
-    session.expires_at = Date.now().getTime() + session.expires_in
+    session = parseHash(window.location.hash)
+    session.expires_at = Date.now() + session.expires_in * 1000
     saveSession(session)
   }
 
-  if (session == null) {
+  if (session === null) {
     session = getSessionFromStore()
   }
 
@@ -58,13 +58,13 @@ function getSessionFromStore () {
 }
 
 function isValid (session) {
-  return session.expires_at > Date.now().getTime()
+  return session.expires_at > Date.now()
 }
 
 export default {
   authenticate () {
     window.location = authenticateUrl()
   },
-  loggedIn () { return getSession() != null },
+  loggedIn () { return getSession() !== null },
   getSession: getSession
 }
