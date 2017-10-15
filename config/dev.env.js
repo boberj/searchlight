@@ -4,5 +4,5 @@ const prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  SPOTIFY_REDIRECT_URL: '"http://dev:8080/"'
+  SPOTIFY_REDIRECT_URL: '"http://localhost:8080/"'
 })

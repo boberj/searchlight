@@ -1,13 +1,10 @@
 <template>
   <div id="spotify">
     <div>
-      <button v-on:click="load">Authenticate</button>
-      <button v-on:click="init">Init client</button>
-      <button v-on:click="me">Me info</button>
-      <button v-on:click="getPlaylists">Fetch & store playlists</button>
-      <button v-on:click="loadPlaylists">Load playlists</button>
+      <button v-on:click='sync'>Sync playlists</button>
+      <button v-on:click="getPlaylists">Fetch & store playlists (legacy)</button>
+      <button v-on:click="loadPlaylists">Load playlists from DB</button>
       <button v-on:click="update">Clear playlists</button>
-      <button v-on:click="test">Test</button>
     </div>
     <div>{{ tracks.total }} songs, {{ tracks.duration | readableDuration }}</div>
     <div v-if="progress.loading">Loading playlist {{ progress.playlist.current }} / {{ progress.playlist.total }}</div>
@@ -96,27 +93,25 @@
 
 <script>
 import auth from '../lib/auth'
+import Database from '@/services/database'
+import Playlist from '@/services/playlists'
 import spotify from '../lib/spotify'
 import Lockr from 'lockr'
 
-function log (response) {
-  console.log(response)
+if (auth.loggedIn()) {
+  spotify.init(auth.getSession().access_token)
+} else {
+  console.log('Spotify: Not authenticated')
 }
+
+// TODO: Inject
+const db = Database.createDb()
 
 export default {
   name: 'Spotify',
   methods: {
-    test: function () {
-      auth.test()
-    },
-    load: function (event) {
-      console.log(auth.authenticate())
-    },
-    init: function () {
-      spotify.init(auth.getSession().access_token)
-    },
-    me: function (event) {
-      spotify.me(this).then(log)
+    sync: function () {
+      return Playlist.syncPlaylists(db, spotify)
     },
     getPlaylists: function (event) {
       var self = this
@@ -125,7 +120,7 @@ export default {
       this.tracks.total = 0
       this.tracks.duration = 0
 
-      spotify.playlists(this).then(function (playlists) {
+      spotify.playlists().then(function (playlists) {
         progress.playlist.current = 0
         progress.playlist.total = playlists.length
         progress.loading = true
@@ -162,8 +157,67 @@ export default {
         }, 0)
       })
     },
+    /**
+     * Tranforms
+     *
+     * [{
+     *   id
+     *   name
+     *   snapshot_id
+     *   owner {
+     *     id
+     *   }
+     *   tracks [{
+     *     added_at
+     *     track {
+     *       album {
+     *         name
+     *       }
+     *       artists [{
+     *         name
+     *       }]
+     *       duration_ms
+     *       name
+     *     }
+     *   }]
+     * }]
+     *
+     * to
+     *
+     * [{
+     *   playlist {
+     *     name
+     *   }
+     *   track {
+     *     album {
+     *       name
+     *     }
+     *     artists [{
+     *       name
+     *     }]
+     *     duration_ms
+     *     name
+     *   }
+     * }]
+     */
     loadPlaylists: function () {
-      this.tracks = Lockr.get('playlists')
+      Database.getPlaylists(db).then((playlists) => {
+        this.tracks.items = playlists.reduce((acc, playlist) => {
+          const tracks = playlist.tracks.reduce((tAcc, track) => {
+            if (track.track !== null) {
+              tAcc.push({
+                playlist: {
+                  name: playlist.name
+                },
+                track: track.track
+              })
+            }
+            return tAcc
+          }, [])
+
+          return acc.concat(tracks)
+        }, [])
+      })
     },
     update: function (event) {
       this.tracks.items = []

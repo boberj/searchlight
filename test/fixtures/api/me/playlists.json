@@ -1,0 +1,25 @@
+{
+  "href": "https://api.spotify.com/v1/users/jboberg/playlists?offset=0&limit=3",
+  "items": [
+    {
+      "id": "37i9dQZF1CAq2w06rTBewP",
+      "name": "Your Summer Rewind",
+      "snapshot_id": "NjDFF/IlzUbiN6WXWsV2+eT3JzEZwBP1Aem/Xffmn9PI960JniiZN+jjeu3uNoKWVorxR3R5yWw="
+    },
+    {
+      "id": "74sUjcvpGfdOvCHvgzNEDO",
+      "name": "lofi hip hop beats [lo-fi hip hop] Chillhop Music \\ Chilledcow",
+      "snapshot_id": "BABhzAideESCqh1j/1YhSy98iuemeTg0jEvR95aCpOdWMk2i4B5tHpifxwuVyGNj"
+    },
+    {
+      "id": "6IjDl5eRczFdgZkKYXhuHZ",
+      "name": "ChillStep",
+      "snapshot_id": "o8ltkhc72DQKEUhJyKaFXPLhlTwQZktQdjh6LNWw9mUa2C8H1zVv0T2nG8W7N9CN"
+    }
+  ],
+  "limit": 3,
+  "next": "https://api.spotify.com/v1/users/jboberg/playlists?offset=3&limit=3",
+  "offset": 0,
+  "previous": null,
+  "total": 260
+}

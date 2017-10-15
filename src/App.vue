@@ -10,6 +10,10 @@
 import HelloWorld from '@/components/HelloWorld.vue'
 import Spotify from '@/components/Spotify.vue'
 
+// TODO: Compatibility check
+// window.indexedDB
+// Chrome 57+ and Opera 17+; IE10+, FF 16+
+
 export default {
   name: 'app',
   components: {

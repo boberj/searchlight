@@ -14,20 +14,18 @@ function parseHash (hash) {
     }, {})
 }
 
-function authenticateUrl () {
-  return Url.format({
-    protocol: 'https',
-    host: 'accounts.spotify.com',
-    pathname: '/authorize',
-    query: {
-      client_id: '8ff22b4d074b418b9a20d935f59e0373',
-      response_type: 'token',
-      redirect_uri: process.env.SPOTIFY_REDIRECT_URL,
-      // TODO state:
-      scope: 'playlist-read-private playlist-read-collaborative user-library-read'
-    }
-  })
-}
+const authenticateUrl = Url.format({
+  protocol: 'https',
+  host: 'accounts.spotify.com',
+  pathname: '/authorize',
+  query: {
+    client_id: '8ff22b4d074b418b9a20d935f59e0373',
+    response_type: 'token',
+    redirect_uri: process.env.SPOTIFY_REDIRECT_URL,
+    // TODO state:
+    scope: 'playlist-read-private playlist-read-collaborative user-library-read'
+  }
+})
 
 function hasHash (hash) {
   return !!hash
@@ -58,13 +56,11 @@ function getSessionFromStore () {
 }
 
 function isValid (session) {
-  return session.expires_at > Date.now()
+  return session && session.expires_at > Date.now()
 }
 
 export default {
-  authenticate () {
-    window.location = authenticateUrl()
-  },
+  authenticateUrl,
   loggedIn () { return getSession() !== null },
   getSession: getSession
 }

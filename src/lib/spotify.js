@@ -1,16 +1,7 @@
-import auth from './auth'
 import SpotifyWebApi from 'spotify-web-api-js'
 
-function options () {
-  return {
-    headers: {
-      'Authorization': 'Bearer ' + auth.getToken()
-    }
-  }
-}
-
 function getP (playlists, offset) {
-  return client.getUserPlaylists(userId, {limit: 50, offset: offset, fields: 'items(id,name,owner.id),limit,next,offset'})
+  return client.getUserPlaylists(userId, {limit: 50, offset: offset, fields: 'items(id,name,snapshot_id,owner.id),limit,next,offset'})
     .then(function (response) {
       if (response.next === null) {
         return playlists.concat(response.items)
@@ -56,11 +47,7 @@ export default {
       .then(response => { userId = response.id })
       .then(console.debug('Spotify client initialized'))
   },
-  me (context) {
-    return context.$http.get('https://api.spotify.com/v1/me', '', options())
-  },
-  playlists (context) {
-    // return context.$http.get('https://api.spotify.com/v1/me/playlists', '', options())
+  playlists () {
     return getP([], 0)
   },
   tracks (ownerId, playlistId) {
