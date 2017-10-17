@@ -17,6 +17,9 @@
       </div>
       <div>{{ search.results }} results ({{ search.duration }} ms)</div>
     </div>
+    <div>
+      <input type="text" v-model="query"/>
+    </div>
 
     <div>
       <table>
@@ -30,7 +33,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in list">
+          <tr v-for="item in lunrRes">
             <td>{{ item.track.name }}</td>
             <td>{{ item.track.artists | mkArtistString }}</td>
             <td>{{ item.track.album.name }}</td>
@@ -100,7 +103,9 @@
 <script>
 import auth from '../lib/auth'
 import Database from '@/services/database'
+import debounce from 'debounce'
 import Playlist from '@/services/playlists'
+import Search from '@/services/search'
 import spotify from '../lib/spotify'
 import Lockr from 'lockr'
 
@@ -207,8 +212,10 @@ export default {
      * }]
      */
     loadPlaylists: function () {
-      Database.getPlaylists(db).then((playlists) => {
-        this.tracks.items = playlists.reduce((acc, playlist) => {
+      console.log('Fetching')
+      return Database.getPlaylists(db).then((playlists) => {
+        console.log('Transforming')
+        const data = playlists.reduce((acc, playlist) => {
           const tracks = playlist.tracks.reduce((tAcc, track) => {
             if (track.track !== null) {
               tAcc.push({
@@ -223,6 +230,14 @@ export default {
 
           return acc.concat(tracks)
         }, [])
+
+        console.log('Populating')
+        this.tracks.items = data
+
+        console.log('Indexing')
+        this.index = Search.createIndex(data)
+
+        console.log('Done')
       })
     },
     update: function (event) {
@@ -230,6 +245,15 @@ export default {
       this.tracks.total = 0
       this.tracks.duration = 0
     }
+  },
+  watch: {
+    query: debounce(function () {
+      if (this.index && this.query.length > 0) {
+        this.lunrRes = Search.find(this.index, this.query).map((i) => this.tracks.items[i])
+      } else {
+        this.lunrRes = []
+      }
+    }, 250)
   },
   filters: {
     mkArtistString: function (artists) {
@@ -289,6 +313,8 @@ export default {
   },
   data () {
     return {
+      query: '',
+      lunrRes: [],
       search: {
         filter: '',
         tracks: true,
