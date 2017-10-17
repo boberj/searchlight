@@ -41,12 +41,18 @@
         </tbody>
       </table>
     </div>
+    <div id="footer">
+      Favicon from <a href="https://icons8.com/">Icons8</a>.
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 
 #spotify {
+  a {
+    color: #42b983;
+  }
 
   div {
     display: block;
