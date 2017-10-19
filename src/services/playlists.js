@@ -8,9 +8,10 @@ import Database from './database'
  *
  * @param db
  * @param spotify
+ * @param progressCallback
  * @returns {Promise.<void>}
  */
-const syncPlaylists = async (db, spotify) => {
+const syncPlaylists = async (db, spotify, progressCallback) => {
   console.log('Syncing')
 
   const [currentPlaylists, dbPlaylists] = await Promise.all([
@@ -24,11 +25,13 @@ const syncPlaylists = async (db, spotify) => {
   console.log(`Adding/updating ${playlistsToAdd.length} playlists`)
   console.log(`Deleting ${playlistsToDelete.length} playlists`)
 
-  for (const playlist of playlistsToAdd) {
+  for (let i = 0; i < playlistsToAdd.length; i++) {
+    const playlist = playlistsToAdd[i]
     console.log(`Adding playlist ${playlist.name} ${playlist.id}`)
     const tracks = await spotify.tracks(playlist.owner.id, playlist.id)
     const playlistWithTracks = R.assoc('tracks', tracks, playlist)
     await Database.addPlaylist(db, playlistWithTracks)
+    progressCallback((i + 1) / playlistsToAdd.length)
   }
 
   await Database.deletePlaylists(db, R.map(R.prop('id'), playlistsToDelete))

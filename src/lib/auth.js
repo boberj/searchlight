@@ -32,11 +32,12 @@ function hasHash (hash) {
 }
 
 function getSession () {
-  let session
+  let session = null
 
   if (hasHash(window.location.hash)) {
     session = parseHash(window.location.hash)
     session.expires_at = Date.now() + session.expires_in * 1000
+    window.location.hash = ''
     saveSession(session)
   }
 
