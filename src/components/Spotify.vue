@@ -1,5 +1,10 @@
 <template>
   <div id="spotify">
+    <div id="search">
+      <div class="spacing">
+        <input id="search-input" placeholder="Search for a song, artist, album or playlist" type="text"  v-model="query"/>
+      </div>
+    </div>
     <div>
       <button v-on:click='sync'>Sync playlists</button>
       <button v-on:click="loadPlaylists">Load playlists from DB</button>
@@ -7,11 +12,7 @@
     <div v-if="progress.state === 'syncing'">Loading your playlists {{ progress.percent | inPercent }}</div>
     <div v-if="progress.state === 'indexing'">Indexing (this might take a while)</div>
     <div v-if="progress.state === 'ready'">Your {{ tracks.length }} tracks are ready to be searched</div>
-    <div id="search">
-      <input id="search-input" type="text" v-model="search.filter" debounce="250"/>
-      <div>{{ search.results.length }} results</div>
-    </div>
-    <div>
+    <div id="results">
       <table>
         <thead>
           <tr>
@@ -42,12 +43,44 @@
 <style lang="scss" scoped>
 
 #spotify {
-  a {
-    color: #42b983;
-  }
-
   div {
     display: block;
+  }
+
+  #search {
+    background-color: #282828;
+    padding: 1.5em 0;
+
+    .spacing {
+      padding: 0 2em;
+      margin: 0 auto;
+    }
+
+    input {
+      caret-color: #1db954;
+      box-sizing: border-box;
+      width: 100%;
+      background-color: transparent;
+      border: none;
+      color: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 100;
+      font-size: 3rem;
+      line-height: 1.6;
+    }
+
+    :focus {
+      outline: none;
+    }
+
+    ::placeholder {
+      color: #555555;
+      opacity: 1;
+    }
+  }
+
+  #results {
+    padding: 0 2em;
   }
 
   table {
@@ -72,17 +105,6 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-  }
-
-  #search {
-    margin: 10px;
-    text-align: center;
-
-    #search-input {
-      width: 200px;
-      font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 14px;
-    }
   }
 
 }

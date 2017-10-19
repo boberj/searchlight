@@ -40,4 +40,8 @@ body {
 #app {
   margin-top: 60px;
 }
+
+a {
+  color: #1db954;
+}
 </style>
