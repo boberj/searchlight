@@ -5,6 +5,9 @@
     </svg>
     <hello-world/>
     <spotify/>
+    <div id="footer">
+      Logo from <a href="https://icons8.com/">Icons8</a>.
+    </div>
   </div>
 </template>
 
@@ -29,9 +32,26 @@ export default {
 
 @import url(https://fonts.googleapis.com/css?family=Montserrat);
 
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body {
+  position: relative;
+  margin: 0;
+  padding-bottom: 3rem;
+  min-height: 100%;
+
   background-color: #121314;
   color: #fff;
+
   font-family: Montserrat, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
@@ -47,6 +67,14 @@ body {
     height: 200px;
     fill: currentColor;
   }
+}
+
+#footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
 }
 
 a {

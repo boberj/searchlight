@@ -34,9 +34,6 @@
         </tbody>
       </table>
     </div>
-    <div id="footer">
-      Favicon from <a href="https://icons8.com/">Icons8</a>.
-    </div>
   </div>
 </template>
 
