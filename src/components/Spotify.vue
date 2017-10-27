@@ -9,9 +9,6 @@
       <button v-on:click='sync'>Sync playlists</button>
       <button v-on:click="loadPlaylists">Load playlists from DB</button>
     </div>
-    <div v-if="progress.state === 'syncing'">Loading your playlists {{ progress.percent | inPercent }}</div>
-    <div v-if="progress.state === 'indexing'">Indexing (this might take a while)</div>
-    <div v-if="progress.state === 'ready'">Your {{ tracks.length }} tracks are ready to be searched</div>
     <div id="results">
       <table>
         <thead>
@@ -117,6 +114,7 @@ import Playlist from '@/services/playlists'
 import * as R from 'ramda'
 import Search from '@/services/search'
 import spotify from '../lib/spotify'
+import { mapMutations } from 'vuex'
 
 if (auth.loggedIn()) {
   spotify.init(auth.getSession().access_token)
@@ -130,18 +128,24 @@ const db = Database.createDb()
 export default {
   name: 'Spotify',
   methods: {
+    ...mapMutations([
+      'syncing',
+      'indexing',
+      'ready',
+      'progress'
+    ]),
     sync: function () {
       const self = this
-      this.progress.state = 'syncing'
+      this.syncing()
       return Playlist.syncPlaylists(db, spotify, (progress) => {
-        self.progress.percent = progress
+        self.progress(progress)
       })
         .then(() => {
-          self.progress.state = 'indexing'
+          self.indexing()
           return this.loadPlaylists()
         })
         .then(() => {
-          self.progress.state = 'ready'
+          self.ready()
         })
     },
     /**
@@ -217,9 +221,6 @@ export default {
       if (minutes > 0) return `${minutes} mins`
       return '0 mins'
     },
-    inPercent: function (percent) {
-      return `${Math.round(percent * 100)}%`
-    },
     inRelativeTime: function (instant) {
       const date = moment(instant)
       return date.isValid() ? date.fromNow() : ''
@@ -229,20 +230,12 @@ export default {
       return date.isValid() ? date.calendar() : ''
     }
   },
-  computed: {
-
-  },
+  computed: {},
   data () {
     return {
       query: '',
       search: {
         results: []
-      },
-      progress: {
-        syncing: false,
-        indexing: false,
-        percent: 0,
-        state: ''
       },
       tracks: []
     }

@@ -11,8 +11,26 @@ Vue.use(Vuex)
 Vue.use(VueMoment)
 
 const store = new Vuex.Store({
-  state: {},
-  mutations: {}
+  state: {
+    progress: {
+      percent: 0,
+      state: 'asdf'
+    }
+  },
+  mutations: {
+    syncing (state) {
+      state.progress.state = 'syncing'
+    },
+    indexing (state) {
+      state.progress.state = 'indexing'
+    },
+    ready (state) {
+      state.progress.state = 'ready'
+    },
+    progress (state, percent) {
+      state.progress.percent = percent
+    }
+  }
 })
 
 /* eslint-disable no-new */
