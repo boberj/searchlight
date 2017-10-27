@@ -11,7 +11,7 @@
   import auth from '../lib/auth'
 
   export default {
-    name: 'HelloWorld',
+    name: 'LandingPage',
     data () {
       return {
         authenticateUrl: auth.authenticateUrl

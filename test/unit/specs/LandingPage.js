@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import HelloWorld from '@/components/HelloWorld'
+import LandingPage from '@/components/LandingPage'
 
-describe('HelloWorld.vue', () => {
+describe('LandingPage.vue', () => {
   it('should render correct contents', () => {
-    const Constructor = Vue.extend(HelloWorld)
+    const Constructor = Vue.extend(LandingPage)
     const vm = new Constructor().$mount()
     expect(vm.$el.querySelector('.hello h1').textContent)
       .to.equal('Searchlight for Spotify')
