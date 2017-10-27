@@ -5,10 +5,6 @@
         <input id="search-input" placeholder="Search for a song, artist, album or playlist" type="text"  v-model="query"/>
       </div>
     </div>
-    <div>
-      <button v-on:click='sync'>Sync playlists</button>
-      <button v-on:click="loadPlaylists">Load playlists from DB</button>
-    </div>
     <div id="results">
       <table>
         <thead>
@@ -106,98 +102,22 @@
 </style>
 
 <script>
-import auth from '../lib/auth'
-import Database from '@/services/database'
 import debounce from 'debounce'
 import moment from 'moment'
-import Playlist from '@/services/playlists'
-import * as R from 'ramda'
 import Search from '@/services/search'
-import spotify from '../lib/spotify'
-import { mapMutations } from 'vuex'
-
-if (auth.loggedIn()) {
-  spotify.init(auth.getSession().access_token)
-} else {
-  console.log('Spotify: Not authenticated')
-}
-
-// TODO: Inject
-const db = Database.createDb()
+import { State } from '@/constants'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'Spotify',
   methods: {
-    ...mapMutations([
-      'syncing',
-      'indexing',
-      'ready',
-      'progress'
-    ]),
-    sync: function () {
-      const self = this
-      this.syncing()
-      return Playlist.syncPlaylists(db, spotify, (progress) => {
-        self.progress(progress)
-      })
-        .then(() => {
-          self.indexing()
-          return this.loadPlaylists()
-        })
-        .then(() => {
-          self.ready()
-        })
-    },
-    /**
-     * Tranforms
-     *
-     * From (document)                 To (table)
-     *
-     * [{                              [{
-     *   id                              playlist {
-     *   name                              name
-     *   snapshot_id                     }
-     *   owner {                         track {
-     *     id                              album {
-     *   }                                   name
-     *   tracks [{                         }
-     *     added_at                        artists [{
-     *     track {                           name
-     *       album {                       }]
-     *         name                        duration_ms
-     *       }                             name
-     *       artists [{                  }
-     *         name                      added_at
-     *       }]                        }]
-     *       duration_ms
-     *       name
-     *     }
-     *   }]
-     * }]
-     */
-    transformPlaylists: function (playlists) {
-      return R.chain(
-        playlist => R.map(
-          R.assoc('playlist', { name: playlist.name }),
-          R.filter(track => track.track !== null, playlist.tracks)
-        ),
-        playlists
-      )
-    },
-    loadPlaylists: function () {
-      return Database.getPlaylists(db).then((playlists) => {
-        const data = this.transformPlaylists(playlists)
-        this.tracks = data
-        this.index = Search.createIndex(data)
-      })
-    },
     runSearch: debounce(function () {
-      this.search.results = Search.find(this.index, this.query).map((i) => this.tracks[i])
+      this.search.results = Search.find(this.$store.state.index, this.query).map((i) => this.$store.state.tracks[i])
     }, 200)
   },
   watch: {
     query: function () {
-      if (this.index && this.query.length > 0) {
+      if (this.$store.state.state === State.READY && this.query.length > 0) {
         this.runSearch()
       } else {
         this.search.results = []
@@ -236,8 +156,7 @@ export default {
       query: '',
       search: {
         results: []
-      },
-      tracks: []
+      }
     }
   }
 }
