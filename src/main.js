@@ -62,7 +62,10 @@ const store = new Vuex.Store({
         db, spotify, (progress) => { commit('progress', progress) }
       ).then(() => {
         commit('indexing')
-        return dispatch('loadPlaylists')
+        // TODO Move indexing to web worker and remove this
+        return new Promise((resolve, reject) => {
+          setTimeout(() => { dispatch('loadPlaylists').then(resolve, reject) }, 1000)
+        })
       }).then(() => {
         commit('ready')
       })
