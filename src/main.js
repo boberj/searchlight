@@ -62,21 +62,22 @@ const store = new Vuex.Store({
         db, spotify, (progress) => { commit('progress', progress) }
       ).then(() => {
         commit('indexing')
-        // TODO Move indexing to web worker and remove this
-        return new Promise((resolve, reject) => {
-          setTimeout(() => { dispatch('loadPlaylists').then(resolve, reject) }, 1000)
-        })
+        return dispatch('loadPlaylists')
       }).then(() => {
         commit('ready')
       })
     },
     loadPlaylists ({ commit, dispatch }) {
-      return Database.getPlaylists(db).then((playlists) => {
-        return dispatch('transformPlaylists', playlists).then((data) => {
-          commit('tracks', Object.freeze(data))
-          commit('index', Object.freeze(Search.createIndex(data)))
+      return Database.getPlaylists(db)
+        .then((playlists) => {
+          return dispatch('transformPlaylists', playlists)
+        }).then((tracks) => {
+          commit('tracks', Object.freeze(tracks))
+          commit('progress', 0)
+          return Search.createIndex(tracks, (progress) => { commit('progress', progress) })
+        }).then((index) => {
+          commit('index', Object.freeze(index))
         })
-      })
     },
     /**
      * Tranforms

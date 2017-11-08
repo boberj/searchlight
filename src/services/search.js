@@ -1,26 +1,28 @@
 import * as R from 'ramda'
 import Lunr from 'lunr'
+import Worker from '@/services/search.worker'
 
 /**
  * Assumes data in denormalized (Vue model) form
  * @param entries
+ * @param progressCallback function Function that takes one parameter
  */
-const createIndex = (entries) => Lunr(function () {
-  this.ref('index')
-  this.field('playlist')
-  this.field('track')
-  this.field('album')
-  this.field('artist')
+const createIndex = (entries, progressCallback) => new Promise((resolve, reject) => {
+  const worker = new Worker()
 
-  entries.forEach(function (entry, index) {
-    this.add({
-      index,
-      playlist: entry.playlist.name,
-      track: entry.track.name,
-      album: entry.track.album.name,
-      artist: entry.track.artists.map(R.prop('name'))
-    })
-  }, this)
+  worker.onmessage = (event) => {
+    const { progress, index } = event.data
+
+    if (progress) {
+      progressCallback(progress)
+    } else if (index) {
+      resolve(Lunr.Index.load(JSON.parse(index)))
+    }
+  }
+
+  worker.onerror = (error) => { reject(error) }
+
+  worker.postMessage(entries)
 })
 
 const find = (index, query) => {
