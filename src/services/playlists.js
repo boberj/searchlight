@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import Database from './database'
+import Playlist from '../repositories/playlist'
 
 /**
  * Adds new playlists to the database
@@ -16,7 +16,7 @@ const syncPlaylists = async (db, spotify, progressCallback) => {
 
   const [currentPlaylists, dbPlaylists] = await Promise.all([
     spotify.playlists(),
-    Database.getPlaylists(db)
+    Playlist.getPlaylists(db)
   ])
 
   const playlistsToAdd = getPlaylistsToAdd(currentPlaylists, dbPlaylists)
@@ -30,11 +30,11 @@ const syncPlaylists = async (db, spotify, progressCallback) => {
     console.log(`Adding playlist ${playlist.name} ${playlist.id}`)
     const tracks = await spotify.tracks(playlist.owner.id, playlist.id)
     const playlistWithTracks = R.assoc('tracks', tracks, playlist)
-    await Database.addPlaylist(db, playlistWithTracks)
+    await Playlist.addPlaylist(db, playlistWithTracks)
     progressCallback((i + 1) / playlistsToAdd.length)
   }
 
-  await Database.deletePlaylists(db, R.map(R.prop('id'), playlistsToDelete))
+  await Playlist.deletePlaylists(db, R.map(R.prop('id'), playlistsToDelete))
 }
 
 /**

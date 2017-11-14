@@ -5,8 +5,9 @@ import Vuex from 'vuex'
 import VueMoment from 'vue-moment'
 import App from './App'
 import auth from '@/lib/auth'
-import Database from '@/services/database'
-import Playlist from '@/services/playlists'
+import Database from '@/lib/database'
+import Playlist from '@/repositories/playlist'
+import Playlists from '@/services/playlists'
 import * as R from 'ramda'
 import Search from '@/services/search'
 import spotify from '@/lib/spotify'
@@ -58,7 +59,7 @@ const store = new Vuex.Store({
   actions: {
     sync ({ commit, dispatch }) {
       commit('syncing')
-      return Playlist.syncPlaylists(
+      return Playlists.syncPlaylists(
         db, spotify, (progress) => { commit('progress', progress) }
       ).then(() => {
         commit('indexing')
@@ -68,7 +69,7 @@ const store = new Vuex.Store({
       })
     },
     loadPlaylists ({ commit, dispatch }) {
-      return Database.getPlaylists(db)
+      return Playlist.getPlaylists(db)
         .then((playlists) => {
           return dispatch('transformPlaylists', playlists)
         }).then((tracks) => {
