@@ -16,7 +16,7 @@ const syncPlaylists = async (db, spotify, progressCallback) => {
 
   const [currentPlaylists, dbPlaylists] = await Promise.all([
     spotify.playlists(),
-    Playlist.getPlaylists(db)
+    Playlist.findAll(db)
   ])
 
   const playlistsToAdd = getPlaylistsToAdd(currentPlaylists, dbPlaylists)
@@ -30,11 +30,11 @@ const syncPlaylists = async (db, spotify, progressCallback) => {
     console.log(`Adding playlist ${playlist.name} ${playlist.id}`)
     const tracks = await spotify.tracks(playlist.owner.id, playlist.id)
     const playlistWithTracks = R.assoc('tracks', tracks, playlist)
-    await Playlist.addPlaylist(db, playlistWithTracks)
+    await Playlist.add(db, [playlistWithTracks])
     progressCallback((i + 1) / playlistsToAdd.length)
   }
 
-  await Playlist.deletePlaylists(db, R.map(R.prop('id'), playlistsToDelete))
+  await Playlist.delete(db, R.map(R.prop('id'), playlistsToDelete))
 }
 
 /**

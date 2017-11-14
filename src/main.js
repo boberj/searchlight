@@ -69,7 +69,7 @@ const store = new Vuex.Store({
       })
     },
     loadPlaylists ({ commit, dispatch }) {
-      return Playlist.getPlaylists(db)
+      return Playlist.findAll(db)
         .then((playlists) => {
           return dispatch('transformPlaylists', playlists)
         }).then((tracks) => {

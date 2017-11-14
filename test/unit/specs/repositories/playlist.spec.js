@@ -13,8 +13,8 @@ describe('Playlist', () => {
   })
 
   it('should store and retrieve all given playlists', async () => {
-    await Playlist.addPlaylists(db, playlists)
-    const ps = sortById(await Playlist.getPlaylists(db))
+    await Playlist.add(db, playlists)
+    const ps = sortById(await Playlist.findAll(db))
     expect(ps).to.deep.equal(playlists)
   })
 })
