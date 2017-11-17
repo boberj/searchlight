@@ -1,18 +1,28 @@
-import Url from 'url'
 import Lockr from 'lockr'
+import Maybe from 'folktale/maybe'
+import * as R from 'ramda'
+import Url from 'url'
 
-// const Maybe = Monet.Maybe
+const decode = (value) => Maybe.fromNullable(value).map(decodeURIComponent).getOrElse(null)
 
-function parseHash (hash) {
-  return hash
-    .substring(1)
-    .split('&')
-    .map(function (param) { return param.split('=') })
-    .reduce(function (params, param) {
-      params[param[0]] = decodeURIComponent(param[1])
-      return params
-    }, {})
+const parseHash = (hash) => R.fromPairs(
+  hash
+  .substring(1)
+  .split('&')
+  .map((param) => param.split('=').map(decode))
+)
+
+const getSessionFromHash = (hash) => {
+  const parsedHash = parseHash(hash)
+  const accessToken = Maybe.fromNullable(parsedHash.access_token)
+  const expiresAt = Maybe.fromNullable(parsedHash.expires_in)
+    .map((sessionLength) => Date.now() + sessionLength * 1000)
+  const toSession = (accessToken) => (expiresAt) => ({ accessToken, expiresAt })
+
+  return Maybe.Just(toSession).ap(accessToken).ap(expiresAt)
 }
+
+const getSessionFromStore = () => Maybe.fromNullable(Lockr.get('session'))
 
 const authenticateUrl = Url.format({
   protocol: 'https',
@@ -27,41 +37,19 @@ const authenticateUrl = Url.format({
   }
 })
 
-function hasHash (hash) {
-  return !!hash
-}
+const getSession = (hash) =>
+  getSessionFromHash(hash)
+    .orElse(getSessionFromStore)
+    .filter(isValid)
 
-function getSession () {
-  let session = null
-
-  if (hasHash(window.location.hash)) {
-    session = parseHash(window.location.hash)
-    session.expires_at = Date.now() + session.expires_in * 1000
-    window.location.hash = ''
-    saveSession(session)
-  }
-
-  if (session === null) {
-    session = getSessionFromStore()
-  }
-
-  return isValid(session) ? session : null
-}
-
-function saveSession (session) {
+const saveSession = (session) => {
   Lockr.set('session', session)
 }
 
-function getSessionFromStore () {
-  return Lockr.get('session')
-}
-
-function isValid (session) {
-  return session && session.expires_at > Date.now()
-}
+const isValid = (session) => session.expiresAt > Date.now()
 
 export default {
   authenticateUrl,
-  loggedIn () { return getSession() !== null },
-  getSession: getSession
+  getSession,
+  saveSession
 }

@@ -4,7 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import VueMoment from 'vue-moment'
 import App from './App'
-import auth from '@/lib/auth'
+import Auth from '@/lib/auth'
 import Database from '@/lib/database'
 import spotify from '@/lib/spotify'
 import { State } from '@/constants'
@@ -17,14 +17,17 @@ Vue.use(VueMoment)
 
 const db = Database.createDb()
 
-var initialState = null
-if (auth.loggedIn()) {
-  spotify.init(auth.getSession().access_token)
-  initialState = State.AUTHENTICATED
-} else {
-  console.log('Spotify: Not authenticated')
-  initialState = State.UNAUTHENTICATED
+const session = Auth.getSession(window.location.hash).getOrElse(null)
+
+// Remove hash in location bar, if any
+history.replaceState(null, '', window.location.pathname)
+
+if (session) {
+  spotify.init(session.accessToken)
+  Auth.saveSession(session)
 }
+
+const initialState = session ? State.AUTHENTICATED : State.UNAUTHENTICATED
 
 const store = Store.createStore(initialState, db, spotify)
 

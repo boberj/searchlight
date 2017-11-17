@@ -15,6 +15,7 @@
   "dependencies": {
     "debounce": "^1.0.2",
     "dexie": "^2.0.1",
+    "folktale": "^2.0.1",
     "lockr": "^0.8.4",
     "lunr": "^2.1.4",
     "moment": "^2.19.1",
