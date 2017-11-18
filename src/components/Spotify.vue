@@ -112,7 +112,9 @@ export default {
   name: 'Spotify',
   methods: {
     runSearch: debounce(function () {
-      this.search.results = Search.find(this.$store.state.index, this.query).map((i) => this.$store.state.tracks[i])
+      this.search.results = Object.freeze(
+        Search.find(this.$store.state.index, this.query).map((i) => this.$store.state.tracks[i])
+      )
     }, 200)
   },
   watch: {
