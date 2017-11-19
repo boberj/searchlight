@@ -6,7 +6,7 @@ import VueMoment from 'vue-moment'
 import App from './App'
 import Auth from '@/lib/auth'
 import Database from '@/lib/database'
-import spotify from '@/lib/spotify'
+import Spotify from '@/lib/spotify'
 import { State } from '@/constants'
 import Store from '@/store'
 
@@ -15,33 +15,41 @@ Vue.config.productionTip = false
 Vue.use(Vuex)
 Vue.use(VueMoment)
 
-const db = Database.createDb()
-
-const session = Auth.getSession(window.location.hash).getOrElse(null)
+const hash = window.location.hash
 
 // Remove hash in location bar, if any
 history.replaceState(null, '', window.location.pathname)
 
-if (session) {
-  spotify.init(session.accessToken)
-  Auth.saveSession(session)
+const createApp = (store) => {
+  /* eslint-disable no-new */
+  new Vue({
+    el: '#app',
+    store,
+    template: '<App/>',
+    components: { App },
+    mounted: function () {
+      this.$nextTick(function () {
+        if (this.$store.state.state === State.AUTHENTICATED) {
+          return this.$store.dispatch('sync')
+        }
+      })
+    }
+  })
 }
 
-const initialState = session ? State.AUTHENTICATED : State.UNAUTHENTICATED
+const onUnauthenticated = async () => {
+  const store = Store.createStore(State.UNAUTHENTICATED)
 
-const store = Store.createStore(initialState, db, spotify)
+  createApp(store)
+}
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  store,
-  template: '<App/>',
-  components: { App },
-  mounted: function () {
-    this.$nextTick(function () {
-      if (this.$store.state.state === State.AUTHENTICATED) {
-        return this.$store.dispatch('sync')
-      }
-    })
-  }
-})
+const onAuthenticated = async (session) => {
+  Auth.saveSession(session)
+  const db = Database.createDb()
+  const spotify = await Spotify.createClient(session.accessToken)
+  const store = Store.createStore(State.AUTHENTICATED, db, spotify)
+
+  createApp(store)
+}
+
+Auth.getSession(hash).fold(onUnauthenticated, onAuthenticated)
