@@ -1,40 +1,40 @@
 import SpotifyWebApi from 'spotify-web-api-js'
+import { unfoldAsync, Unfold } from '@/utils/unfold'
 
-function getP (client, userId, playlists, offset) {
-  return client.getUserPlaylists(userId, {limit: 50, offset: offset, fields: 'items(id,name,snapshot_id,owner.id),limit,next,offset'})
-    .then(function (response) {
-      if (response.next === null) {
-        return playlists.concat(response.items)
-      } else {
-        return getP(client, userId, playlists.concat(response.items), response.offset + response.limit)
-      }
-    })
-}
+const onSuccess = response => response.next
+  ? Unfold.Continue(response.items, response.offset + response.limit)
+  : Unfold.Done(response.items)
 
-function getT (client, ownerId, playlistId, tracks, offset) {
-  return client.getPlaylistTracks(ownerId, playlistId, {limit: 100, offset: offset, fields: 'items(added_at,track(album.name,artists.name,duration_ms,name)),limit,next,offset'}).then(response => {
-    if (response.next === null) {
-      return tracks.concat(response.items)
-    } else {
-      return getT(client, ownerId, playlistId, tracks.concat(response.items), response.offset + response.limit)
+const shouldRetry = (response) => response && response.status === 429
+
+const onError = error => shouldRetry(error)
+  ? Unfold.Retry(3000)
+  : Unfold.Fail(error)
+
+const unfoldFn = unfoldAsync(onSuccess, onError)
+
+const getUserPlaylists = (client, userId) => unfoldFn(offset => {
+  return client.getUserPlaylists(
+    userId,
+    {
+      limit: 50,
+      offset: offset,
+      fields: 'items(id,name,snapshot_id,owner.id),limit,next,offset'
     }
-  }).catch(response => {
-    if (response.status === 429) {
-      return new Promise((resolve, reject) => {
-        window.setTimeout(_ => {
-          getT(client, ownerId, playlistId, tracks, offset).then(
-            success => resolve(success),
-            error => reject(error)
-          )
-        }, 3000)
-      })
+  )
+})(0)
+
+const getPlaylistTracks = (client, ownerId, playlistId) => unfoldFn(offset => {
+  return client.getPlaylistTracks(
+    ownerId,
+    playlistId,
+    {
+      limit: 100,
+      offset: offset,
+      fields: 'items(added_at,track(album.name,artists.name,duration_ms,name)),limit,next,offset'
     }
-
-    console.error('Failed to load playlist ' + playlistId + '. Returning partial results.')
-
-    return tracks
-  })
-}
+  )
+})(0)
 
 const createClient = async (token) => {
   const client = new SpotifyWebApi()
@@ -46,10 +46,10 @@ const createClient = async (token) => {
 
   return {
     playlists () {
-      return getP(client, userId, [], 0)
+      return getUserPlaylists(client, userId)
     },
     tracks (ownerId, playlistId) {
-      return getT(client, ownerId, playlistId, [], 0)
+      return getPlaylistTracks(client, ownerId, playlistId)
     }
   }
 }
