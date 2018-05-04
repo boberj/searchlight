@@ -5,10 +5,16 @@ import * as R from 'ramda'
 import Search from '@/services/search'
 import { State } from '@/constants'
 
-const createStore = (initialState, db, spotify) => new Vuex.Store({
+const createUnauthenticatedStore = () => new Vuex.Store({
+  state: {
+    state: State.UNAUTHENTICATED
+  }
+})
+
+const createAuthenticatedStore = (db, spotify) => new Vuex.Store({
   state: {
     progress: 0,
-    state: initialState,
+    state: State.AUTHENTICATED,
     tracks: [],
     index: null
   },
@@ -96,5 +102,6 @@ const createStore = (initialState, db, spotify) => new Vuex.Store({
 })
 
 export default {
-  createStore
+  createAuthenticatedStore,
+  createUnauthenticatedStore
 }

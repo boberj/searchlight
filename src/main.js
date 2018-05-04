@@ -38,7 +38,7 @@ const createApp = (store) => {
 }
 
 const onUnauthenticated = async () => {
-  const store = Store.createStore(State.UNAUTHENTICATED)
+  const store = Store.createUnauthenticatedStore()
 
   createApp(store)
 }
@@ -47,7 +47,7 @@ const onAuthenticated = async (session) => {
   Auth.saveSession(session)
   const db = Database.createDb()
   const spotify = await Spotify.createClient(session.accessToken)
-  const store = Store.createStore(State.AUTHENTICATED, db, spotify)
+  const store = Store.createAuthenticatedStore(db, spotify)
 
   createApp(store)
 }
