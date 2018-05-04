@@ -11,7 +11,7 @@
       <p v-if="state === State.UNAUTHENTICATED" key="unauthenticated">Authenticate with Spotify to <a :href="authenticateUrl">begin.</a></p>
       <p v-if="state === State.SYNCING" key="syncing">Loading your playlists {{ progress | inPercent }}</p>
       <p v-if="state === State.INDEXING" key="indexing">Indexing {{ progress | inPercent }}</p>
-      <p v-if="state === State.READY" key="ready">Your tracks are waiting to be rediscovered!</p>
+      <p v-if="state === State.READY" key="ready">Your tracks are waiting to be found!</p>
     </transition>
   </div>
 </template>

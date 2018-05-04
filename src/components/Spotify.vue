@@ -106,7 +106,6 @@ import debounce from 'debounce'
 import moment from 'moment'
 import Search from '@/services/search'
 import { State } from '@/constants'
-import { mapActions } from 'vuex'
 
 export default {
   name: 'Spotify',
