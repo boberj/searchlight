@@ -39,28 +39,20 @@ const createAuthenticatedStore = (db, spotify) => new Vuex.Store({
     }
   },
   actions: {
-    sync ({ commit, dispatch }) {
+    async sync ({ commit, dispatch }) {
       commit('syncing')
-      return Playlists.syncPlaylists(
-        db, spotify, (progress) => { commit('progress', progress) }
-      ).then(() => {
-        commit('indexing')
-        return dispatch('loadPlaylists')
-      }).then(() => {
-        commit('ready')
-      })
+      await Playlists.syncPlaylists(db, spotify, (progress) => { commit('progress', progress) })
+      commit('indexing')
+      await dispatch('loadPlaylists')
+      commit('ready')
     },
-    loadPlaylists ({ commit, dispatch }) {
-      return Playlist.findAll(db)
-        .then((playlists) => {
-          return dispatch('transformPlaylists', playlists)
-        }).then((tracks) => {
-          commit('tracks', Object.freeze(tracks))
-          commit('progress', 0)
-          return Search.createIndex(tracks, (progress) => { commit('progress', progress) })
-        }).then((index) => {
-          commit('index', Object.freeze(index))
-        })
+    async loadPlaylists ({ commit, dispatch }) {
+      const playlists = await Playlist.findAll(db)
+      const tracks = await dispatch('transformPlaylists', playlists)
+      commit('tracks', Object.freeze(tracks))
+      commit('progress', 0)
+      const index = await Search.createIndex(tracks, (progress) => { commit('progress', progress) })
+      commit('index', Object.freeze(index))
     },
     /**
      * Tranforms
