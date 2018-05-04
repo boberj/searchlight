@@ -3,6 +3,8 @@ import Maybe from 'folktale/maybe'
 import * as R from 'ramda'
 import Url from 'url'
 
+const SESSION_KEY = 'session'
+
 const decode = (value) => Maybe.fromNullable(value).map(decodeURIComponent).getOrElse(null)
 
 const parseHash = (hash) => R.fromPairs(
@@ -22,7 +24,7 @@ const getSessionFromHash = (hash) => {
   return Maybe.Just(toSession).ap(accessToken).ap(expiresAt)
 }
 
-const getSessionFromStore = () => Maybe.fromNullable(Lockr.get('session'))
+const getSessionFromLocalStorage = () => Maybe.fromNullable(Lockr.get(SESSION_KEY))
 
 const authenticateUrl = Url.format({
   protocol: 'https',
@@ -39,11 +41,11 @@ const authenticateUrl = Url.format({
 
 const getSession = (hash) =>
   getSessionFromHash(hash)
-    .orElse(getSessionFromStore)
+    .orElse(getSessionFromLocalStorage)
     .filter(isValid)
 
 const saveSession = (session) => {
-  Lockr.set('session', session)
+  Lockr.set(SESSION_KEY, session)
 }
 
 const isValid = (session) => session.expiresAt > Date.now()
