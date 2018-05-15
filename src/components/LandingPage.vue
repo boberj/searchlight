@@ -8,10 +8,10 @@
     <h2>Find your lost songs</h2>
     <p>Searchlight for Spotify shows you not only what songs you've saved but also <i>where</i> you saved them.</p>
     <transition name="status" mode="out-in">
-      <p v-if="state === State.UNAUTHENTICATED" key="unauthenticated">Authenticate with Spotify to <a :href="authenticateUrl">begin.</a></p>
-      <p v-if="state === State.SYNCING" key="syncing">Loading your playlists {{ progress | inPercent }}</p>
-      <p v-if="state === State.INDEXING" key="indexing">Indexing {{ progress | inPercent }}</p>
-      <p v-if="state === State.READY" key="ready">Your tracks are waiting to be found!</p>
+      <p v-if="State.Unauthenticated.hasInstance(state)" key="unauthenticated">Authenticate with Spotify to <a :href="authenticateUrl">begin.</a></p>
+      <p v-if="State.Syncing.hasInstance(state)" key="syncing">Loading your playlists {{ state.progress | inPercent }}</p>
+      <p v-if="State.Indexing.hasInstance(state)" key="indexing">Indexing {{ state.progress | inPercent }}</p>
+      <p v-if="State.Ready.hasInstance(state)" key="ready">Your tracks are waiting to be found!</p>
     </transition>
   </div>
 </template>
@@ -19,7 +19,7 @@
 <script>
   import auth from '../lib/auth'
   import { mapState } from 'vuex'
-  import { State } from '@/constants'
+  import { State } from '@/store'
 
   export default {
     name: 'LandingPage',
@@ -33,7 +33,6 @@
     },
     computed: {
       ...mapState([
-        'progress',
         'state'
       ])
     },

@@ -12,7 +12,7 @@
 <script>
 import LandingPage from '@/components/LandingPage.vue'
 import Spotify from '@/components/Spotify.vue'
-import { State } from '@/constants'
+import { State } from '@/store'
 
 // TODO: Compatibility check
 // window.indexedDB
@@ -26,7 +26,7 @@ export default {
   },
   computed: {
     currentView: function () {
-      return this.$store.state.state === State.READY ? Spotify : LandingPage
+      return State.Ready.hasInstance(this.$store.state.state) ? Spotify : LandingPage
     }
   }
 }

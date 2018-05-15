@@ -7,8 +7,7 @@ import App from './App'
 import Auth from '@/lib/auth'
 import Database from '@/lib/database'
 import Spotify from '@/lib/spotify'
-import { State } from '@/constants'
-import Store from '@/store'
+import Store, { State } from '@/store'
 
 Vue.config.productionTip = false
 
@@ -29,7 +28,7 @@ const createApp = (store) => {
     components: { App },
     mounted: function () {
       this.$nextTick(function () {
-        if (this.$store.state.state === State.AUTHENTICATED) {
+        if (State.Authenticated.hasInstance(this.$store.state.state)) {
           return this.$store.dispatch('sync')
         }
       })
