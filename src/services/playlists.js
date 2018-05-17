@@ -29,7 +29,7 @@ const syncPlaylists = async (db, spotify, progressCallback) => {
     const playlist = playlistsToAdd[i]
     console.log(`Adding playlist ${playlist.name} ${playlist.id}`)
     const tracks = await spotify.tracks(playlist.owner.id, playlist.id)
-    const playlistWithTracks = R.assoc('tracks', tracks, playlist)
+    const playlistWithTracks = R.assoc('items', tracks, playlist)
     await Playlist.add(db, [playlistWithTracks])
     progressCallback((i + 1) / playlistsToAdd.length)
   }

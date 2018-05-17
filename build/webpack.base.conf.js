@@ -48,10 +48,6 @@ module.exports = {
         include: [resolve('src'), resolve('test')]
       },
       {
-        test: /\.worker\.js$/,
-        loader: 'worker-loader'
-      },
-      {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {

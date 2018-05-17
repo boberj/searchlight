@@ -105,20 +105,19 @@
 import debounce from 'debounce'
 import moment from 'moment'
 import Search from '@/services/search'
-import { State } from '@/store'
 
 export default {
   name: 'Spotify',
   methods: {
     runSearch: debounce(function () {
       this.search.results = Object.freeze(
-        Search.find(this.$store.state.state.index, this.query).map((i) => this.$store.state.state.tracks[i])
+        Search.find(this.$store.state.state.index, this.query)
       )
     }, 200)
   },
   watch: {
     query: function () {
-      if (State.Ready.hasInstance(this.$store.state.state) && this.query.length > 0) {
+      if (this.query.length > 1) {
         this.runSearch()
       } else {
         this.search.results = []

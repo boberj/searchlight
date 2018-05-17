@@ -9,11 +9,9 @@ import Vuex from 'vuex'
 
 export const State = Union('State', {
   Authenticated () {},
-  Indexing (progress) {
-    return { progress }
-  },
-  Ready (tracks, index) {
-    return { tracks, index }
+  Indexing () {},
+  Ready (index) {
+    return { index }
   },
   Syncing (progress) {
     return { progress }
@@ -38,8 +36,8 @@ const createAuthenticatedStore = (db, spotify) => new Vuex.Store({
     indexing (state) {
       state.state = State.Indexing(0).freeze()
     },
-    ready (state, { tracks, index }) {
-      state.state = State.Ready(tracks, index).freeze()
+    ready (state, index) {
+      state.state = State.Ready(index).freeze()
     },
     progress (state, progress) {
       state.state = state.state.copy({ progress }).freeze()
@@ -50,20 +48,16 @@ const createAuthenticatedStore = (db, spotify) => new Vuex.Store({
       commit('syncing')
       await Playlists.syncPlaylists(db, spotify, (progress) => { commit('progress', progress) })
       commit('indexing')
-      const result = await dispatch('loadPlaylists')
-      commit('ready', result)
+      const index = await dispatch('loadPlaylists')
+      commit('ready', index)
     },
     async loadPlaylists ({ commit, dispatch }) {
       const playlists = await Playlist.findAll(db)
       const tracks = await dispatch('transformPlaylists', playlists)
-      const index = await Search.createIndex(tracks, (progress) => { commit('progress', progress) })
-      return {
-        tracks,
-        index
-      }
+      return Search.createIndex(tracks)
     },
     /**
-     * Tranforms
+     * Transforms
      *
      * From (document)                 To (table)
      *
@@ -90,11 +84,12 @@ const createAuthenticatedStore = (db, spotify) => new Vuex.Store({
      * }]
      */
     transformPlaylists (context, playlists) {
+      const addPlaylist = playlist => R.assoc('playlist', { name: playlist.name })
+
+      const removeItemsWithEmptyTrack = R.filter(item => item.track !== null)
+
       return R.chain(
-        playlist => R.map(
-          R.assoc('playlist', { name: playlist.name }),
-          R.filter(track => track.track !== null, playlist.tracks)
-        ),
+        playlist => R.map(addPlaylist(playlist), removeItemsWithEmptyTrack(playlist.items)),
         playlists
       )
     }

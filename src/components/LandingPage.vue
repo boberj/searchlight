@@ -10,7 +10,7 @@
     <transition name="status" mode="out-in">
       <p v-if="State.Unauthenticated.hasInstance(state)" key="unauthenticated">Authenticate with Spotify to <a :href="authenticateUrl">begin.</a></p>
       <p v-if="State.Syncing.hasInstance(state)" key="syncing">Loading your playlists {{ state.progress | inPercent }}</p>
-      <p v-if="State.Indexing.hasInstance(state)" key="indexing">Indexing {{ state.progress | inPercent }}</p>
+      <p v-if="State.Indexing.hasInstance(state)" key="indexing">Indexing</p>
       <p v-if="State.Ready.hasInstance(state)" key="ready">Your tracks are waiting to be found!</p>
     </transition>
   </div>
